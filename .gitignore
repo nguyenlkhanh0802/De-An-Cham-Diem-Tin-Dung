@@ -1,0 +1,13 @@
+# Môi trường ảo (Virtual Environment)
+venv/
+env/
+.venv/
+
+# Bộ nhớ đệm Python & Jupyter Notebook
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
+
+# File hệ thống không cần thiết
+.DS_Store
+Thumbs.db
