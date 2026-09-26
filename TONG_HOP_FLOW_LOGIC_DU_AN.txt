@@ -1,0 +1,169 @@
+TÓM TẮT DỰ ÁN FINTECH BOT
+========================================
+
+1. DỰ ÁN DÙNG ĐỂ LÀM GÌ?
+----------------------------------------
+
+Đây là bot theo dõi cổ phiếu Việt Nam.
+
+Bot có thể:
+
+- Lấy giá và khối lượng giao dịch.
+- Phân tích xu hướng giá.
+- Báo tín hiệu Mua, Bán hoặc chưa có tín hiệu.
+- Tra cứu cổ phiếu qua Telegram.
+- Gửi thông báo cho mã người dùng theo dõi.
+- Chạy thử chiến lược trên dữ liệu cũ.
+
+Bot không tự đặt lệnh mua bán.
+
+
+2. CẤU TRÚC CODE CHÍNH
+----------------------------------------
+
+Code/fintech_bot/
+
+- app.py: nối các phần của chương trình.
+- cli.py: xử lý cách khởi động chương trình.
+- config.py: đọc các thiết lập.
+- domain.py: định nghĩa dữ liệu giá, cổ phiếu và tín hiệu.
+- market.py: ngày và giờ giao dịch.
+- data/: lấy, kiểm tra và lưu dữ liệu.
+- strategies/: tính toán tín hiệu Mua/Bán.
+- services/: quét cổ phiếu, gửi cảnh báo và chạy thử.
+- storage/: lưu dữ liệu vào cơ sở dữ liệu trên máy.
+- bot/: xử lý lệnh Telegram.
+
+Các thư mục khác:
+
+- configs/: file thiết lập.
+- tests/: file kiểm tra chương trình.
+- data/: dữ liệu đã tải và cơ sở dữ liệu.
+- docs/: tài liệu.
+- reports/: báo cáo chạy thử.
+
+
+3. LUỒNG HOẠT ĐỘNG CHÍNH
+----------------------------------------
+
+Nguồn dữ liệu KBS
+  -> nếu lỗi thì dùng Vietcap
+  -> kiểm tra dữ liệu
+  -> lưu nến giá 1 ngày trên máy
+  -> quét từng mã cổ phiếu
+  -> tính EMA và RSI
+  -> tạo Mua/Bán/Chưa có tín hiệu
+  -> lưu kết quả
+  -> gửi Telegram nếu người dùng đăng ký
+
+Giá đang chạy trong phiên chỉ dùng để hiển thị.
+Nó không được đưa vào phần tính tín hiệu.
+
+
+4. CÁCH LẤY VÀ LƯU DỮ LIỆU
+----------------------------------------
+
+- KBS là nguồn giá lịch sử chính.
+- Vietcap là nguồn dự phòng.
+- Vietcap cũng cung cấp giá hiện tại và thông tin tài chính.
+- Chương trình còn có thể đọc dữ liệu từ file CSV.
+- Chế độ thử nghiệm dùng dữ liệu giả, không cần mạng.
+
+Mỗi mã chỉ dùng một nguồn giá lịch sử hoàn chỉnh.
+Chương trình không ghép lẫn giá KBS và Vietcap.
+
+Dữ liệu chỉ được dùng khi:
+
+- Đúng mã cổ phiếu.
+- Giá và khối lượng hợp lệ.
+- Đúng ngày, giờ đóng cửa của sàn.
+- Đã kết thúc phiên giao dịch.
+- Có đủ số ngày cần thiết.
+
+Dữ liệu thiếu hoặc sai sẽ bị bỏ qua để tránh báo sai.
+
+
+5. CÁCH TẠO TÍN HIỆU
+----------------------------------------
+
+Chương trình dùng:
+
+- EMA20: giá trung bình của 20 phiên, nhạy với giá mới.
+- EMA50: giá trung bình của 50 phiên, thể hiện xu hướng dài hơn.
+- RSI14: mức mạnh/yếu của giá trong 14 phiên.
+
+Tín hiệu MUA:
+
+- EMA20 vừa cắt lên EMA50.
+- RSI lớn hơn 50.
+
+Tín hiệu BÁN:
+
+- EMA20 vừa cắt xuống EMA50; hoặc
+- RSI từ trên 70 giảm về 70 hoặc thấp hơn.
+
+Nếu chưa có thay đổi mới, chương trình trả về “chưa có tín hiệu”.
+
+
+6. TELEGRAM
+----------------------------------------
+
+Các lệnh chính:
+
+- /status: xem tình trạng hệ thống.
+- /universe: xem danh sách mã.
+- /signals: xem tín hiệu.
+- /stock MÃ: xem một cổ phiếu.
+- /chart MÃ: xem biểu đồ.
+- /financials MÃ: xem thông tin tài chính.
+- /subscribe MÃ: theo dõi một mã.
+- /unsubscribe MÃ: bỏ theo dõi.
+- /alerts: chọn cách nhận thông báo.
+- /filter: đặt điều kiện lọc.
+- /screen: tìm mã đạt điều kiện.
+- /scan: quét lại dữ liệu đã lưu.
+
+/scan chỉ đọc lại dữ liệu trên máy, không tự tải giá lịch sử mới.
+
+
+7. CÁCH CHẠY
+----------------------------------------
+
+Chạy trong thư mục Code:
+
+- start-local.cmd: chạy thử bằng dữ liệu giả.
+- prepare-history.cmd: tải/cập nhật giá lịch sử.
+- prepare-vietcap.cmd: tải thông tin tài chính.
+- start-vietcap.cmd: dùng dữ liệu đã lưu trên máy.
+- start-live.cmd: hiển thị thêm giá hiện tại.
+- start-telegram-setup.cmd: nhập token Telegram.
+- start-telegram.cmd: chạy bot Telegram.
+
+Sau khi thị trường đóng cửa:
+
+1. Dừng bot.
+2. Chạy prepare-history.cmd.
+3. Khởi động lại bot.
+4. Dùng /scan để quét dữ liệu mới.
+
+
+8. LƯU Ý
+----------------------------------------
+
+- Chương trình hiện chỉ dùng dữ liệu theo ngày.
+- Không có tín hiệu nhanh trong phiên.
+- Không tự đặt lệnh chứng khoán.
+- Lịch nghỉ cần nhập thủ công.
+- Telegram hiện thường cần lệnh /scan để tạo tín hiệu mới.
+- Không chia sẻ thư mục .secrets, file Telegram hoặc dữ liệu người dùng.
+- Kết quả chỉ phục vụ học tập, không phải lời khuyên đầu tư.
+
+
+9. KẾT QUẢ KIỂM TRA
+----------------------------------------
+
+- Code được chia thành 46 file Python.
+- Có 161 bài kiểm tra tự động.
+- Cả 161 bài kiểm tra đều đạt khi chạy trong thư mục thử riêng.
+- Không có file code nào bị chỉnh sửa trong quá trình rà soát.
+

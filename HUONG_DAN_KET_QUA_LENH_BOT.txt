@@ -1,0 +1,254 @@
+NGUỒN DỮ LIỆU HIỆN TẠI
+----------------------------------------
+
+Dự án không kết nối trực tiếp với KBS. Chương trình sử dụng thư viện
+Vnstock để yêu cầu dữ liệu từ nguồn KBS.
+
+Cách lấy dữ liệu giá lịch sử:
+
+1. prepare-history.cmd gọi Vnstock để lấy danh sách mã và giá theo ngày từ KBS.
+2. Dữ liệu được kiểm tra về mã, ngày, giá và khối lượng.
+3. Dữ liệu hợp lệ được lưu trên máy trong Code/data/daily.
+4. Nếu KBS không cung cấp được dữ liệu phù hợp, chương trình dùng Vietcap dự phòng.
+5. Khi bot chạy, /scan chỉ đọc dữ liệu đã lưu; nó không gọi KBS để tải lại.
+
+Vietcap còn được dùng để lấy giá hiện tại và thông tin tài chính.
+Giá hiện tại chỉ để hiển thị, không dùng để tính tín hiệu Mua/Bán.
+
+HƯỚNG DẪN CÁC LỆNH CHÍNH CỦA BOT
+========================================
+
+1. /start hoặc /help
+----------------------------------------
+
+Hiển thị danh sách lệnh và cách sử dụng bot.
+
+2. /status
+----------------------------------------
+Hiển thị tình trạng hệ thống:
+- Universe: tổng số mã trong hệ thống.
+- Lần quét gần nhất: thời điểm bot phân tích gần nhất.
+- READY: dữ liệu đã sẵn sàng.
+- MISSING: chưa có dữ liệu.
+- STALE: dữ liệu có nhưng đã cũ.
+- INVALID: dữ liệu không hợp lệ.
+- ERROR: có lỗi khi đọc hoặc xử lý dữ liệu.
+- ELIGIBLE: số mã đủ điều kiện phân tích.
+- SKIPPED: số mã bị bỏ qua.
+- BUY: số tín hiệu Mua.
+- SELL: số tín hiệu Bán.
+- NONE: số mã chưa có tín hiệu mới.
+- Tin đang chờ: số thông báo chưa gửi xong.
+- Thời gian scan: thời gian hoàn thành một lượt quét.
+
+3. /universe
+----------------------------------------
+
+Hiển thị danh sách mã cổ phiếu trong hệ thống.
+
+Có thể lọc theo sàn:
+
+  /universe HOSE
+  /universe HNX
+  /universe UPCOM
+
+Mỗi lần hiển thị tối đa 50 mã.
+
+
+4. /signals
+----------------------------------------
+
+Hiển thị tín hiệu Mua/Bán của lần quét gần nhất.
+
+Cách dùng:
+
+  /signals
+  /signals 2
+ 
+
+Kết quả thường gồm mã cổ phiếu, ngày giao dịch, giá đóng cửa,
+EMA20, EMA50, RSI14, tín hiệu và lý do.
+
+Không có kết quả có thể chỉ đơn giản là chưa xuất hiện điều kiện Mua/Bán.
+
+
+5. /stock FPT
+----------------------------------------
+
+Tra cứu một mã cụ thể.
+
+Kết quả có thể gồm:
+
+- Tín hiệu hiện tại.
+- Giá đóng cửa dùng để phân tích.
+- EMA20, EMA50 và RSI14.
+- Lý do tạo tín hiệu.
+- Nguồn dữ liệu.
+- Giá hiện tại từ Vietcap nếu có.
+
+Giá hiện tại chỉ để hiển thị, không dùng để tính tín hiệu.
+
+
+6. /chart FPT
+----------------------------------------
+
+Gửi biểu đồ khoảng 100 phiên gần nhất, gồm:
+
+- Giá đóng cửa.
+- EMA20 và EMA50.
+- RSI14.
+- Điểm Mua/Bán gần nhất nếu có.
+
+Nếu dữ liệu chưa đủ, bot sẽ trả thông báo bằng chữ.
+
+
+7. /financials FPT
+----------------------------------------
+
+Hiển thị thông tin tài chính:
+
+- Kỳ báo cáo và ngày công bố.
+- EPS, P/E, P/B và ROE.
+- Nợ trên vốn chủ sở hữu.
+- Mức thanh khoản ILLIQ.
+- Nguồn và ngày thu thập dữ liệu.
+
+“Chưa có” nghĩa là dữ liệu chưa được tải hoặc nguồn không cung cấp.
+
+
+8. /subscribe FPT
+----------------------------------------
+
+Thêm FPT vào danh sách theo dõi.
+
+Kết quả có thể là:
+
+  Đã theo dõi FPT.
+
+hoặc:
+
+  Bạn đã theo dõi FPT.
+
+
+9. /unsubscribe FPT
+----------------------------------------
+
+Xóa FPT khỏi danh sách theo dõi.
+
+
+10. /subscriptions
+----------------------------------------
+
+Hiển thị các mã người dùng đang theo dõi.
+
+Ví dụ:
+
+  Đang theo dõi: FPT, MBB, HPG
+
+
+11. /alerts
+----------------------------------------
+
+Chọn phạm vi nhận cảnh báo:
+
+  /alerts watchlist
+  Chỉ nhận cảnh báo cho mã đang theo dõi.
+
+  /alerts all
+  Nhận cảnh báo cho mọi mã bot phân tích được.
+
+  /alerts off
+  Tắt cảnh báo tự động.
+
+
+12. /filter
+----------------------------------------
+
+Xem hoặc đặt điều kiện lọc:
+
+  /filter
+  /filter roe_min 15
+  /filter pe_max 20
+  /filter pb_max 3
+  /filter debt_max 2
+  /filter eps_min 1000
+  /filter illiq_max 1e-10
+  /filter clear
+
+Ví dụ /filter roe_min 15 nghĩa là yêu cầu ROE từ 15% trở lên.
+
+Bộ lọc chỉ chặn tín hiệu Mua. Tín hiệu Bán không bị chặn.
+
+
+13. /screen
+----------------------------------------
+
+Liệt kê các mã đạt bộ lọc tài chính hiện tại.
+
+Cách dùng:
+
+  /screen
+  /screen 2
+
+Mã đạt bộ lọc chưa có nghĩa là đang có tín hiệu Mua.
+
+
+14. /scan
+----------------------------------------
+
+Yêu cầu bot quét lại dữ liệu lịch sử đã lưu trên máy.
+
+Trong chế độ live, bot sẽ xếp lượt quét và yêu cầu người dùng
+xem tiến độ bằng /status.
+
+Lưu ý:
+
+- /scan không tải dữ liệu lịch sử mới.
+- Muốn cập nhật nến mới phải chạy prepare-history.cmd trước.
+- Sau đó khởi động lại bot, dùng /scan rồi kiểm tra /status.
+
+
+15. /timeframe 1d
+----------------------------------------
+
+Xác nhận bot sử dụng dữ liệu theo ngày.
+
+Bot hiện chỉ hỗ trợ khung 1d. 
+
+
+16. NGUỒN VÀ CÁCH LẤY DỮ LIỆU
+----------------------------------------
+
+Nguồn chính hiện tại:
+
+- Vnstock/KBS: lấy danh sách mã và giá lịch sử theo ngày.
+- Vietcap: dự phòng giá lịch sử khi KBS không dùng được.
+- Vietcap cũng cung cấp giá hiện tại và thông tin tài chính.
+
+Cách lấy dữ liệu:
+
+1. prepare-history.cmd kiểm tra dữ liệu đang có trên máy.
+2. Dữ liệu còn mới sẽ được dùng lại và ghi là REUSED.
+3. Dữ liệu thiếu sẽ được tải thêm từ KBS.
+4. Nếu KBS không đạt yêu cầu, chương trình thử Vietcap.
+5. Dữ liệu hợp lệ được lưu trong Code/data/daily.
+
+Khi bot đang chạy:
+
+- /scan chỉ đọc và phân tích dữ liệu đã lưu trên máy.
+- Giá hiện tại từ Vietcap chỉ dùng cho /stock và /status.
+- Giá hiện tại không được dùng để tính tín hiệu Mua/Bán.
+- Thông tin tài chính được chuẩn bị bằng prepare-vietcap.cmd.
+
+
+TÓM TẮT
+----------------------------------------
+
+- /status: kiểm tra hệ thống.
+- /signals: xem tín hiệu.
+- /stock: xem một mã.
+- /chart: xem biểu đồ.
+- /financials: xem thông tin tài chính.
+- /subscribe và /alerts: thiết lập cảnh báo.
+- /filter và /screen: lọc cổ phiếu.
+- /scan: quét lại dữ liệu đã chuẩn bị.
